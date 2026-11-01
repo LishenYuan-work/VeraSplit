@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AURORA P1 — 3D 结构拆解实验室</title>
+  <meta name="description" content="AURORA P1 概念手机交互式 3D 结构拆解演示。Three.js + 程序化几何，无外部模型。" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app" id="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark"><span>Λ</span></div>
+        <div>
+          <div class="brand-kicker">AURORA LAB / STRUCTURAL TEARDOWN</div>
+          <div class="brand-title">AURORA <b>P1</b></div>
+        </div>
+      </div>
+      <div class="top-center">
+        <span class="live-dot"></span>
+        <span class="live-label">LIVE MODEL</span>
+        <span class="top-divider"></span>
+        <span class="top-meta">SCALE 1:1 · YAW 035.5° · PBR / REAL-TIME</span>
+      </div>
+      <div class="top-stats">
+        <span>PARTS <b id="topParts">24</b></span>
+        <span>EXPLODED <b id="topExploded">00</b></span>
+        <span>FPS <b id="fps">60</b></span>
+        <button class="icon-btn" id="exportBtn" aria-label="导出 PNG" title="导出 PNG">⤓</button>
+        <button class="icon-btn" id="fsBtn" aria-label="全屏" title="全屏">⛶</button>
+        <button class="icon-btn" id="helpBtn" aria-label="操作指南">?</button>
+      </div>
+    </header>
+
+    <aside class="panel parts-panel">
+      <div class="panel-head">
+        <div>
+          <span class="micro">COMPONENT MATRIX</span>
+          <h1>部件清单 <em id="partCount">/ 24</em></h1>
+        </div>
+        <span class="panel-code">P1-01</span>
+      </div>
+      <div class="integrity">
+        <div class="integrity-row"><span>ASSEMBLY INTEGRITY</span><b id="integrity">100%</b></div>
+        <div class="integrity-track"><i id="integrityBar" style="width:100%"></i></div>
+      </div>
+      <div class="part-list" id="partList"></div>
+      <div class="core-specs">
+        <div class="core-head"><span>CORE SPECS</span><span>关键参数</span></div>
+        <div class="core-grid" id="coreSpecs"></div>
+      </div>
+      <div class="panel-foot">
+        <span>DRAG · ORBIT</span><span>SCROLL · ZOOM</span><span>CLICK · INSPECT</span>
+      </div>
+    </aside>
+
+    <main class="stage" id="stage">
+      <canvas id="scene" aria-label="AURORA P1 手机三维拆解模型"></canvas>
+      <div class="stage-vignette"></div>
+      <div class="stage-grid"></div>
+      <div class="stage-corner tl"></div><div class="stage-corner tr"></div>
+      <div class="stage-corner bl"></div><div class="stage-corner br"></div>
+      <div class="stage-readout left">Y <b>+0.00</b><br />Z <b>+0.00</b></div>
+      <div class="stage-readout right">EXPLODE <b id="stageExplode">000</b></div>
+      <div class="labels" id="labels"></div>
+      <svg class="leader-layer" id="leaderLayer"></svg>
+      <div class="stage-hint" id="stageHint">拖拽旋转 · 滚轮缩放 · 点击零件拆解</div>
+    </main>
+
+    <aside class="panel inspector">
+      <div class="panel-head inspector-head">
+        <div>
+          <span class="micro">COMPONENT INSPECTOR</span>
+          <h2>部件详情 <em>/ DETAIL</em></h2>
+        </div>
+        <span class="active-pill" id="activePill">● ACTIVE</span>
+      </div>
+      <div id="inspectorBody" class="inspector-body" aria-live="polite"></div>
+      <div class="inspector-actions">
+        <button class="action-primary" id="focusBtn"><span>⊕</span> 聚焦此部件</button>
+        <button class="action-ghost" id="clearBtn"><span>×</span> 取消选择</button>
+      </div>
+    </aside>
+
+    <footer class="dock">
+      <button class="explode-btn" id="explodeBtn"><span class="explode-icon">✦</span><span id="explodeLabel">全部拆解</span></button>
+      <div class="progress-wrap">
+        <div class="progress-head"><span>EXPLODE SEQUENCE</span><b id="progressValue">000</b></div>
+        <input id="progress" type="range" min="0" max="100" value="0" aria-label="拆解进度" />
+        <div class="progress-ticks"><span>00</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+      </div>
+      <div class="dock-actions">
+        <button class="dock-btn" id="partsBtn" title="部件清单"><span>☰</span><small>部件</small></button>
+        <button class="dock-btn" id="tourBtn" title="引导模式"><span>◎</span><small>引导</small></button>
+        <button class="dock-btn" id="autoBtn" title="自动旋转"><span>◌</span><small>自动旋转</small></button>
+        <button class="dock-btn" id="labelsBtn" title="显示/隐藏标注"><span>⌁</span><small>标注</small></button>
+        <button class="dock-btn" id="qualityBtn" title="开关 Bloom 后处理"><span>◐</span><small>Bloom</small></button>
+        <button class="dock-btn" id="resetBtn" title="复位"><span>↺</span><small>复位</small></button>
+      </div>
+    </footer>
+
+    <div class="tourbar" id="tourbar" aria-hidden="true">
+      <div class="tour-kicker">GUIDED TEARDOWN</div>
+      <div class="tour-main" aria-live="polite"><b id="tourStep">01 / 16</b><span id="tourName">屏幕总成</span><span class="tour-caption" id="tourCaption"></span></div>
+      <div class="tour-actions"><button id="tourPlay" aria-label="播放/暂停">▶</button><button id="tourPrev" aria-label="上一个">←</button><button id="tourNext" aria-label="下一个">→</button><button id="tourExit" aria-label="退出引导">×</button></div>
+      <div class="tour-progress"><i id="tourProgress"></i></div>
+    </div>
+
+    <div class="modal" id="helpModal" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-head"><div><span class="micro">OPERATION GUIDE</span><h3>操作指南</h3></div><button class="icon-btn" id="closeHelp" aria-label="关闭">×</button></div>
+        <div class="guide-grid">
+          <div><b>拖拽</b><span>旋转视角</span></div>
+          <div><b>滚轮 / 双指</b><span>缩放</span></div>
+          <div><b>点击零件</b><span>选中并拆解</span></div>
+          <div><b>双击零件</b><span>聚焦到该部件</span></div>
+          <div><b>全部拆解</b><span>展开全部模块</span></div>
+          <div><b>滑杆</b><span>手动控制拆解进度</span></div>
+          <div><b>1–9</b><span>快速选择前 9 个模块</span></div>
+          <div><b>T / B / F</b><span>导览 / Bloom / 聚焦</span></div>
+          <div><b>H / ?</b><span>打开操作指南</span></div>
+        </div>
+        <p class="guide-note">这是概念结构演示，不是官方维修图。内部堆叠与比例经过艺术化处理。</p>
+      </div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="loading-mark">Λ</div>
+      <div class="loading-title">AURORA <b>P1</b></div>
+      <div class="loading-sub">INITIALIZING STRUCTURE / 24 MODULES</div>
+      <div class="loading-track"><i></i></div>
+    </div>
+  </div>
+
+  <script>
+    if (location.protocol === "file:") {
+      document.addEventListener("DOMContentLoaded", function () {
+        document.body.innerHTML = '<div style="min-height:100vh;display:grid;place-content:center;background:#030a0f;color:#d9f7ff;font:14px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;text-align:center;line-height:1.8"><b style="font-size:20px">请使用 start.bat 打开</b><span>这个版本使用 ES Module，浏览器不允许通过 file:// 加载 3D 模块。</span><span style="color:#6e98a4">双击 start.bat，或运行 python -m http.server 8123</span></div>';
+      });
+    }
+  </script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three.module.js",
+        "three/addons/": "./vendor/addons/"
+      }
+    }
+  </script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
