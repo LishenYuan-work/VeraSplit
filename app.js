@@ -416,6 +416,8 @@ import { buildPhoneModel } from "./model.js";
       const base = group.userData.base;
       const vector = group.userData.explode;
       group.position.set(base.x + vector.x * eased, base.y + vector.y * eased, base.z + vector.z * eased);
+      const alwaysVisible = ["screen", "frame", "back", "camera"].includes(part.id);
+      group.visible = explode > 0.018 || alwaysVisible || selectedId === part.id;
       if (raw > 0.52) count += 1;
     });
     const value = Math.round(explode * 100);

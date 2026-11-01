@@ -420,7 +420,9 @@ const T = THREE;
 
     // 15 side buttons (separate module so they can be inspected)
     const buttons = new T.Group();
-    const buttonMat = silver;
+    const buttonMat = new T.MeshPhysicalMaterial({
+      color: 0x1d2428, metalness: 0.96, roughness: 0.22, envMapIntensity: 1.6,
+    });
     const power = new T.Mesh(new T.BoxGeometry(0.04, 0.28, 0.1), buttonMat);
     power.position.set(0.79, 0.44, 0.02);
     buttons.add(power);
@@ -522,9 +524,9 @@ const T = THREE;
     camGlass.rotation.y = Math.PI;
     camera.add(camGlass);
     const lensPositions = [
-      [-0.18, 1.22, -0.28, 0.18],
-      [0.03, 0.94, -0.28, 0.145],
-      [-0.18, 0.94, -0.28, 0.145],
+      [-0.16, 1.23, -0.28, 0.15],
+      [0.15, 1.06, -0.28, 0.105],
+      [-0.16, 0.86, -0.28, 0.105],
     ];
     lensPositions.forEach(([x, y, z, r], i) => {
       const barrel = new T.Mesh(new T.CylinderGeometry(r * 1.08, r * 1.08, 0.085, 36), silver);
@@ -557,11 +559,11 @@ const T = THREE;
     });
     const flash = new T.Mesh(new T.CylinderGeometry(0.042, 0.042, 0.014, 20), new T.MeshBasicMaterial({ color: 0xffe5ae }));
     flash.rotation.x = Math.PI / 2;
-    flash.position.set(0.22, 1.2, -0.305);
+    flash.position.set(0.27, 1.38, -0.305);
     camera.add(flash);
     const lidar = new T.Mesh(new T.CylinderGeometry(0.036, 0.036, 0.012, 20), new T.MeshBasicMaterial({ color: 0x071a21 }));
     lidar.rotation.x = Math.PI / 2;
-    lidar.position.set(0.2, 0.9, -0.305);
+    lidar.position.set(0.27, 0.72, -0.305);
     camera.add(lidar);
     register(camera, "camera");
 
@@ -657,8 +659,8 @@ const T = THREE;
 
     // 13 SIM tray
     const simTray = new T.Group();
-    const simBody = new T.Mesh(new T.BoxGeometry(0.055, 0.52, 0.14), metal);
-    simBody.position.set(-0.795, -0.78, 0);
+    const simBody = new T.Mesh(new T.BoxGeometry(0.04, 0.46, 0.1), metal);
+    simBody.position.set(-0.7, -0.78, 0.01);
     simTray.add(simBody);
     const simPin = new T.Mesh(new T.CylinderGeometry(0.012, 0.012, 0.02, 12), darkMetal);
     simPin.rotation.z = Math.PI / 2;
@@ -749,18 +751,14 @@ const T = THREE;
     // 24 camera bracket
     const bracket = new T.Group();
     const bracketMat = silver;
-    const bracketTop = new T.Mesh(new T.BoxGeometry(0.95, 0.045, 0.06), bracketMat);
-    bracketTop.position.set(-0.18, 1.47, -0.145);
-    bracket.add(bracketTop);
-    const bracketBottom = new T.Mesh(new T.BoxGeometry(0.95, 0.045, 0.06), bracketMat);
-    bracketBottom.position.set(-0.18, 0.63, -0.145);
-    bracket.add(bracketBottom);
-    const bracketLeft = new T.Mesh(new T.BoxGeometry(0.045, 0.88, 0.06), bracketMat);
-    bracketLeft.position.set(-0.64, 1.05, -0.145);
-    bracket.add(bracketLeft);
-    const bracketRight = new T.Mesh(new T.BoxGeometry(0.045, 0.88, 0.06), bracketMat);
-    bracketRight.position.set(0.28, 1.05, -0.145);
-    bracket.add(bracketRight);
+    const bracketPlate = extrudeRounded(0.9, 0.9, 0.026, 0.16, new T.MeshPhysicalMaterial({
+      color: 0x11181c, metalness: 0.9, roughness: 0.3, envMapIntensity: 1.1,
+    }), 0.004);
+    bracketPlate.position.set(0, 1.05, -0.142);
+    bracket.add(bracketPlate);
+    const bracketTab = new T.Mesh(new T.BoxGeometry(0.12, 0.035, 0.03), silver);
+    bracketTab.position.set(0, 1.48, -0.155);
+    bracket.add(bracketTab);
     register(bracket, "bracket");
 
     // small alignment pins / screws for visual density
