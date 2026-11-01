@@ -3,20 +3,19 @@
 **VeraSplit** 是一个可交互的 3D 结构拆解项目。当前样本 **AURORA P1** 是一台虚构概念手机，24 个零件全部由 Three.js 程序化几何生成，不依赖外部 3D 模型、图片或在线字体。
 
 - 仓库：https://github.com/LishenYuan-work/VeraSplit
-- 在线演示：启用 GitHub Pages 后访问 https://lishenyuan-work.github.io/VeraSplit/
+- 在线演示：https://lishenyuan-work.github.io/VeraSplit/
 
 ![拆解视图](./preview.png)
 
 ## 公网访问
 
-推荐在 VeraSplit 仓库启用 GitHub Pages：
+已启用 GitHub Pages，直接访问：
 
-1. Settings → Pages
-2. Source 选择 `Deploy from a branch`
-3. Branch 选择 `main` / root
-4. 保存后访问 https://lishenyuan-work.github.io/VeraSplit/
+https://lishenyuan-work.github.io/VeraSplit/
 
-`index.html` 是单文件版，不需要构建。
+拆解态：https://lishenyuan-work.github.io/VeraSplit/?exploded=1
+
+`index.html` 是单文件版，不需要构建，也不需要登录。
 
 ## 运行
 
@@ -112,11 +111,10 @@ index.html?exploded=1&filter=optics
 ```text
 index.html          单文件成品（双击打开）
 index-module.html   开发入口，需要本地服务器
-app.js / model.js / data.js / styles.css  源码
-styles.css          深色科技视觉、响应式
-data.js             24 个零件的名称、参数、文案、爆炸方向
-model.js            程序化几何、材质、Canvas 屏幕/PCB/电池纹理
 app.js              场景、相机、拆解、拾取、标签、交互
+model.js            程序化几何、材质、Canvas 屏幕/PCB/电池纹理
+data.js             24 个零件的名称、参数、文案、爆炸方向
+styles.css          深色科技视觉、响应式
 vendor/three.module.js Three.js r149（MIT，本地）
 vendor/addons/       EffectComposer / RenderPass / UnrealBloomPass
 preview.png         拆解态截图
@@ -145,7 +143,7 @@ app.js
 - **换真实模型**：把 `model.js` 替换成 GLTFLoader 适配层，保留零件 `id` 和爆炸向量即可。
 - **加视觉**：已经接入 EffectComposer + UnrealBloomPass；底部的 Bloom 按钮可在低配设备上关闭后处理。后续可继续加描边、景深。
 - **嵌入 React / Next.js**：把 `app.js` 的 scene 生命周期放进 `useEffect`，外层 HUD 改成组件。
-- **移动端**：左侧清单改为抽屉，右侧 Inspector 改为底部面板。
+- **移动端**：已支持部件抽屉和底部 Inspector，可继续做手势与性能分级。
 
 ## 打不开时
 
