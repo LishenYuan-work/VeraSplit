@@ -257,11 +257,11 @@ const T = THREE;
   function logoTexture() {
     return canvasTexture(256, 96, (ctx, w, h) => {
       ctx.clearRect(0, 0, w, h);
-      ctx.fillStyle = "rgba(185,225,238,.56)";
+      ctx.fillStyle = "rgba(232,240,242,.72)";
       ctx.font = "600 26px -apple-system, BlinkMacSystemFont, sans-serif";
       ctx.letterSpacing = "5px";
       ctx.fillText("AURORA", 18, 58);
-      ctx.fillStyle = "rgba(120,255,245,.35)";
+      ctx.fillStyle = "rgba(220,232,235,.42)";
       ctx.font = "10px monospace";
       ctx.fillText("CONCEPT / P1", 20, 80);
     });
@@ -300,30 +300,38 @@ const T = THREE;
 
     const brushed = brushedTexture();
     const metal = new T.MeshPhysicalMaterial({
-      color: 0x263941,
-      metalness: 0.98,
-      roughness: 0.28,
+      color: 0x1b1e20,
+      metalness: 0.99,
+      roughness: 0.26,
       roughnessMap: brushed,
-      clearcoat: 0.46,
-      clearcoatRoughness: 0.18,
-      envMapIntensity: 1.9,
+      clearcoat: 0.42,
+      clearcoatRoughness: 0.16,
+      envMapIntensity: 1.95,
     });
     const darkMetal = new T.MeshPhysicalMaterial({
-      color: 0x081116,
-      metalness: 0.9,
-      roughness: 0.32,
+      color: 0x050708,
+      metalness: 0.92,
+      roughness: 0.3,
       roughnessMap: brushed,
-      envMapIntensity: 1.25,
+      envMapIntensity: 1.3,
+    });
+    const silver = new T.MeshPhysicalMaterial({
+      color: 0xc2cacc,
+      metalness: 1,
+      roughness: 0.2,
+      clearcoat: 0.25,
+      clearcoatRoughness: 0.18,
+      envMapIntensity: 1.85,
     });
     const glass = new T.MeshPhysicalMaterial({
-      color: 0x06131b,
-      metalness: 0.28,
-      roughness: 0.09,
+      color: 0x080a0b,
+      metalness: 0.62,
+      roughness: 0.08,
       clearcoat: 1,
-      clearcoatRoughness: 0.06,
+      clearcoatRoughness: 0.05,
       transparent: true,
       opacity: 0.98,
-      envMapIntensity: 1.55,
+      envMapIntensity: 1.7,
     });
     const screenMat = new T.MeshBasicMaterial({ map: screenTexture(), toneMapped: true, color: 0x688791 });
     const pcb = new T.MeshStandardMaterial({
@@ -399,10 +407,10 @@ const T = THREE;
     frame.add(frameMesh);
     const frameEdges = new T.LineSegments(
       new T.EdgesGeometry(frameGeo, 24),
-      new T.LineBasicMaterial({ color: 0x8de4ee, transparent: true, opacity: 0.2 })
+      new T.LineBasicMaterial({ color: 0xe1eaec, transparent: true, opacity: 0.28 })
     );
     frame.add(frameEdges);
-    const antennaBand = new T.MeshStandardMaterial({ color: 0x223840, metalness: 0.65, roughness: 0.35 });
+    const antennaBand = new T.MeshStandardMaterial({ color: 0x4b5255, metalness: 0.8, roughness: 0.32 });
     [-1.56, 1.56].forEach((y) => {
       const band = new T.Mesh(new T.BoxGeometry(1.22, 0.022, 0.026), antennaBand);
       band.position.set(0, y, 0.125);
@@ -412,7 +420,7 @@ const T = THREE;
 
     // 15 side buttons (separate module so they can be inspected)
     const buttons = new T.Group();
-    const buttonMat = new T.MeshPhysicalMaterial({ color: 0x263b45, metalness: 0.9, roughness: 0.22 });
+    const buttonMat = silver;
     const power = new T.Mesh(new T.BoxGeometry(0.04, 0.28, 0.1), buttonMat);
     power.position.set(0.79, 0.44, 0.02);
     buttons.add(power);
@@ -519,13 +527,11 @@ const T = THREE;
       [-0.18, 0.94, -0.28, 0.145],
     ];
     lensPositions.forEach(([x, y, z, r], i) => {
-      const barrel = new T.Mesh(new T.CylinderGeometry(r * 1.08, r * 1.08, 0.085, 36), metal);
+      const barrel = new T.Mesh(new T.CylinderGeometry(r * 1.08, r * 1.08, 0.085, 36), silver);
       barrel.rotation.x = Math.PI / 2;
       barrel.position.set(x, y, z);
       camera.add(barrel);
-      const ring = new T.Mesh(new T.TorusGeometry(r * 0.92, 0.012, 8, 36), new T.MeshPhysicalMaterial({
-        color: 0x243943, metalness: 0.92, roughness: 0.18,
-      }));
+      const ring = new T.Mesh(new T.TorusGeometry(r * 0.92, 0.012, 8, 36), silver);
       ring.position.set(x, y, z - 0.045);
       camera.add(ring);
       const glassLens = new T.Mesh(new T.CylinderGeometry(r * 0.78, r * 0.78, 0.012, 36), lensGlass);
@@ -742,7 +748,7 @@ const T = THREE;
 
     // 24 camera bracket
     const bracket = new T.Group();
-    const bracketMat = new T.MeshPhysicalMaterial({ color: 0x29414b, metalness: 0.82, roughness: 0.25 });
+    const bracketMat = silver;
     const bracketTop = new T.Mesh(new T.BoxGeometry(0.95, 0.045, 0.06), bracketMat);
     bracketTop.position.set(-0.18, 1.47, -0.17);
     bracket.add(bracketTop);
