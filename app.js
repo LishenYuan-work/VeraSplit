@@ -19,6 +19,15 @@ import { buildPhoneModel } from "./model.js";
     return;
   }
 
+  function partGroup(part) {
+    const category = part.category || "";
+    if (/FRONT|STRUCTURE|REAR|INTERFACE/.test(category)) return "structure";
+    if (/CORE|SENSOR|CONNECTIVITY/.test(category)) return "core";
+    if (/POWER|THERMAL/.test(category)) return "energy";
+    if (/OPTICS/.test(category)) return "optics";
+    return "interaction";
+  }
+
   let renderer;
   try {
     renderer = new T.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance", preserveDrawingBuffer: true });
@@ -81,6 +90,7 @@ import { buildPhoneModel } from "./model.js";
   let tourIndex = -1;
   let tourActive = false;
   let tourPlaying = false;
+  let activeFilter = "all";
   let tourTimer = null;
 
   // ---- environment -------------------------------------------------------
@@ -212,6 +222,7 @@ import { buildPhoneModel } from "./model.js";
 
   // ---- UI refs -----------------------------------------------------------
   const partList = document.getElementById("partList");
+  const filterRow = document.getElementById("filterRow");
   const coreSpecs = document.getElementById("coreSpecs");
   const inspectorBody = document.getElementById("inspectorBody");
   const activePill = document.getElementById("activePill");
@@ -257,6 +268,7 @@ import { buildPhoneModel } from "./model.js";
     const btn = document.createElement("button");
     btn.className = "part-item";
     btn.dataset.id = part.id;
+    btn.dataset.group = partGroup(part);
     btn.innerHTML = `<span class="idx">${part.index}</span><span><span class="name">${part.name}</span><span class="en">${part.en}</span></span><span class="dot" style="background:${part.color}"></span>`;
     btn.addEventListener("click", () => selectPart(part.id, true));
     partList.appendChild(btn);
@@ -322,6 +334,14 @@ import { buildPhoneModel } from "./model.js";
     focusBtn.style.opacity = "1";
   }
 
+  function setFilter(group) {
+    activeFilter = group;
+    filterRow.querySelectorAll("button").forEach((button) => button.classList.toggle("active", button.dataset.filter === group));
+    partList.querySelectorAll(".part-item").forEach((item) => {
+      item.style.display = group === "all" || item.dataset.group === group ? "" : "none";
+    });
+  }
+
   function selectPart(id, shouldExplode) {
     selectedId = selectedId === id ? null : id;
     app.classList.toggle("has-selection", Boolean(selectedId));
@@ -332,6 +352,7 @@ import { buildPhoneModel } from "./model.js";
     labelEls.forEach((el, key) => el.classList.toggle("selected", key === selectedId));
     const part = parts.find((p) => p.id === selectedId);
     if (part) {
+      if (activeFilter !== "all" && partGroup(part) !== activeFilter) setFilter("all");
       if (tourActive) {
         tourIndex = parts.findIndex((item) => item.id === selectedId);
         updateTourBar();
@@ -645,6 +666,9 @@ import { buildPhoneModel } from "./model.js";
     labelsVisible = !labelsVisible;
     labelsBtn.classList.toggle("active", labelsVisible);
   });
+  filterRow.querySelectorAll("button").forEach((button) => {
+    button.addEventListener("click", () => setFilter(button.dataset.filter));
+  });
   labelsBtn.classList.remove("active");
   partsBtn.addEventListener("click", () => {
     const open = app.classList.toggle("parts-open");
@@ -736,6 +760,10 @@ import { buildPhoneModel } from "./model.js";
     stage.classList.add("hint-hidden");
   }
   if (params.get("tour") === "1") window.setTimeout(startTour, 700);
+  const filterParam = params.get("filter");
+  if (filterParam && ["all", "structure", "core", "energy", "optics", "interaction"].includes(filterParam)) {
+    setFilter(filterParam);
+  }
   if (params.get("parts") === "1") {
     app.classList.add("parts-open");
     partsBtn.classList.add("active");

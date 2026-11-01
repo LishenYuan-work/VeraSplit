@@ -327,6 +327,12 @@ input[type="range"]::-moz-range-thumb { width: 10px; height: 14px; border: 1px s
   *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;scroll-behavior:auto !important}
 }
 
+.filter-row{display:flex;flex-wrap:wrap;gap:3px;padding:9px 12px 7px;border-bottom:1px solid var(--line)}
+.filter-row button{height:20px;padding:0 6px;border:1px solid transparent;background:transparent;color:var(--muted-2);font:8px var(--mono);letter-spacing:.03em}
+.filter-row button:hover{color:var(--cyan)}
+.filter-row button.active{border-color:var(--line-strong);background:rgba(97,244,255,.08);color:var(--cyan)}
+@media (max-width:640px){.filter-row{padding:6px 10px;gap:2px}.filter-row button{font-size:7px;height:18px}}
+
   </style>
 </head>
 <body>
@@ -366,6 +372,14 @@ input[type="range"]::-moz-range-thumb { width: 10px; height: 14px; border: 1px s
       <div class="integrity">
         <div class="integrity-row"><span>ASSEMBLY INTEGRITY</span><b id="integrity">100%</b></div>
         <div class="integrity-track"><i id="integrityBar" style="width:100%"></i></div>
+      </div>
+      <div class="filter-row" id="filterRow">
+        <button data-filter="all" class="active">全部</button>
+        <button data-filter="structure">结构</button>
+        <button data-filter="core">核心</button>
+        <button data-filter="energy">能源</button>
+        <button data-filter="optics">影像</button>
+        <button data-filter="interaction">交互</button>
       </div>
       <div class="part-list" id="partList"></div>
       <div class="core-specs">
@@ -31239,6 +31253,14 @@ input[type="range"]::-moz-range-thumb { width: 10px; height: 14px; border: 1px s
       document.body.innerHTML = "<p style='padding:24px;color:#fff'>Three.js \u6216\u96F6\u4EF6\u6570\u636E\u52A0\u8F7D\u5931\u8D25\u3002</p>";
       return;
     }
+    function partGroup(part) {
+      const category = part.category || "";
+      if (/FRONT|STRUCTURE|REAR|INTERFACE/.test(category)) return "structure";
+      if (/CORE|SENSOR|CONNECTIVITY/.test(category)) return "core";
+      if (/POWER|THERMAL/.test(category)) return "energy";
+      if (/OPTICS/.test(category)) return "optics";
+      return "interaction";
+    }
     let renderer;
     try {
       renderer = new T2.WebGLRenderer({ canvas, antialias: true, alpha: false, powerPreference: "high-performance", preserveDrawingBuffer: true });
@@ -31299,6 +31321,7 @@ input[type="range"]::-moz-range-thumb { width: 10px; height: 14px; border: 1px s
     let tourIndex = -1;
     let tourActive = false;
     let tourPlaying = false;
+    let activeFilter = "all";
     let tourTimer = null;
     function makeEnvironment() {
       const c = document.createElement("canvas");
@@ -31419,6 +31442,7 @@ input[type="range"]::-moz-range-thumb { width: 10px; height: 14px; border: 1px s
     selectionBox.material.opacity = 0.48;
     scene.add(selectionBox);
     const partList = document.getElementById("partList");
+    const filterRow = document.getElementById("filterRow");
     const coreSpecs = document.getElementById("coreSpecs");
     const inspectorBody = document.getElementById("inspectorBody");
     const activePill = document.getElementById("activePill");
@@ -31463,6 +31487,7 @@ input[type="range"]::-moz-range-thumb { width: 10px; height: 14px; border: 1px s
       const btn = document.createElement("button");
       btn.className = "part-item";
       btn.dataset.id = part.id;
+      btn.dataset.group = partGroup(part);
       btn.innerHTML = `<span class="idx">${part.index}</span><span><span class="name">${part.name}</span><span class="en">${part.en}</span></span><span class="dot" style="background:${part.color}"></span>`;
       btn.addEventListener("click", () => selectPart(part.id, true));
       partList.appendChild(btn);
@@ -31522,6 +31547,13 @@ input[type="range"]::-moz-range-thumb { width: 10px; height: 14px; border: 1px s
       focusBtn.disabled = false;
       focusBtn.style.opacity = "1";
     }
+    function setFilter(group) {
+      activeFilter = group;
+      filterRow.querySelectorAll("button").forEach((button) => button.classList.toggle("active", button.dataset.filter === group));
+      partList.querySelectorAll(".part-item").forEach((item) => {
+        item.style.display = group === "all" || item.dataset.group === group ? "" : "none";
+      });
+    }
     function selectPart(id2, shouldExplode) {
       selectedId = selectedId === id2 ? null : id2;
       app.classList.toggle("has-selection", Boolean(selectedId));
@@ -31532,6 +31564,7 @@ input[type="range"]::-moz-range-thumb { width: 10px; height: 14px; border: 1px s
       labelEls.forEach((el, key2) => el.classList.toggle("selected", key2 === selectedId));
       const part = parts.find((p) => p.id === selectedId);
       if (part) {
+        if (activeFilter !== "all" && partGroup(part) !== activeFilter) setFilter("all");
         if (tourActive) {
           tourIndex = parts.findIndex((item) => item.id === selectedId);
           updateTourBar();
@@ -31828,6 +31861,9 @@ input[type="range"]::-moz-range-thumb { width: 10px; height: 14px; border: 1px s
       labelsVisible = !labelsVisible;
       labelsBtn.classList.toggle("active", labelsVisible);
     });
+    filterRow.querySelectorAll("button").forEach((button) => {
+      button.addEventListener("click", () => setFilter(button.dataset.filter));
+    });
     labelsBtn.classList.remove("active");
     partsBtn.addEventListener("click", () => {
       const open = app.classList.toggle("parts-open");
@@ -31922,6 +31958,10 @@ input[type="range"]::-moz-range-thumb { width: 10px; height: 14px; border: 1px s
       stage.classList.add("hint-hidden");
     }
     if (params.get("tour") === "1") window.setTimeout(startTour, 700);
+    const filterParam = params.get("filter");
+    if (filterParam && ["all", "structure", "core", "energy", "optics", "interaction"].includes(filterParam)) {
+      setFilter(filterParam);
+    }
     if (params.get("parts") === "1") {
       app.classList.add("parts-open");
       partsBtn.classList.add("active");

@@ -48,7 +48,8 @@ Windows 也可以双击 `start.bat`，它会优先用 Python、没有 Python 时
 | Bloom | 开关后处理；低配设备可切到 Fast |
 | 自动旋转 | 缓慢展示旋转 |
 | 标注 | 显示全部标签；默认只显示选中零件标签 |
-| 部件（窄屏） | 打开 16 项零件抽屉 |
+| 分类筛选 | 按结构 / 核心 / 能源 / 影像 / 交互筛选零件 |
+| 部件（窄屏） | 打开 24 项零件抽屉 |
 | 复位 | 回到默认机位与装配状态 |
 | `1–9` | 快速选择前 9 个零件 |
 | `E` / `R` / `L` / `Space` | 拆解 / 复位 / 标注 / 自动旋转 |
@@ -89,6 +90,7 @@ index.html?exploded=1&part=camera
 index.html?exploded=1&tour=1
 index.html?exploded=1&parts=1
 index.html?exploded=1&labels=1
+index.html?exploded=1&filter=optics
 ```
 
 `part` 支持全部 24 个 id：`screen`、`frame`、`back`、`board`、`battery`、`camera`、`coil`、`speaker`、`frontCamera`、`earpiece`、`vibration`、`vapor`、`simTray`、`usb`、`buttons`、`antenna`、`micTop`、`micBottom`、`als`、`displayFlex`、`shield`、`nfc`、`graphite`、`bracket`。
