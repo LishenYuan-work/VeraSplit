@@ -40,7 +40,7 @@ import { buildPhoneModel } from "./model.js";
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = T.PCFSoftShadowMap;
   renderer.toneMapping = T.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.0;
+  renderer.toneMappingExposure = 0.95;
   if ("outputColorSpace" in renderer && T.SRGBColorSpace) renderer.outputColorSpace = T.SRGBColorSpace;
   else renderer.outputEncoding = T.sRGBEncoding;
 
@@ -55,9 +55,9 @@ import { buildPhoneModel } from "./model.js";
   composer.addPass(new RenderPass(scene, camera));
   const bloomPass = new UnrealBloomPass(
     new T.Vector2(stage.clientWidth, stage.clientHeight),
-    0.14,
-    0.42,
-    0.96
+    0.1,
+    0.36,
+    0.97
   );
   composer.addPass(bloomPass);
   const cameraTarget = new T.Vector3(0, 0.06, 0);
@@ -100,28 +100,36 @@ import { buildPhoneModel } from "./model.js";
     c.height = 512;
     const ctx = c.getContext("2d");
     const g = ctx.createLinearGradient(0, 0, 0, 512);
-    g.addColorStop(0, "#07151d");
-    g.addColorStop(0.34, "#1a6879");
-    g.addColorStop(0.48, "#b9edf1");
-    g.addColorStop(0.54, "#133a49");
-    g.addColorStop(1, "#02070b");
+    g.addColorStop(0, "#010406");
+    g.addColorStop(0.3, "#08171d");
+    g.addColorStop(0.46, "#1d343a");
+    g.addColorStop(0.5, "#8aa3a4");
+    g.addColorStop(0.54, "#101c21");
+    g.addColorStop(1, "#010305");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 1024, 512);
-    const warm = ctx.createRadialGradient(220, 190, 4, 220, 190, 240);
-    warm.addColorStop(0, "rgba(255,188,120,.9)");
-    warm.addColorStop(1, "rgba(255,188,120,0)");
+    const warm = ctx.createRadialGradient(170, 180, 2, 170, 180, 210);
+    warm.addColorStop(0, "rgba(255,172,99,.85)");
+    warm.addColorStop(0.35, "rgba(255,125,60,.22)");
+    warm.addColorStop(1, "rgba(255,125,60,0)");
     ctx.fillStyle = warm;
     ctx.fillRect(0, 0, 1024, 512);
-    const cool = ctx.createRadialGradient(780, 230, 4, 780, 230, 300);
-    cool.addColorStop(0, "rgba(92,238,255,.75)");
-    cool.addColorStop(1, "rgba(92,238,255,0)");
+    const cool = ctx.createRadialGradient(790, 210, 2, 790, 210, 260);
+    cool.addColorStop(0, "rgba(70,225,255,.65)");
+    cool.addColorStop(0.4, "rgba(35,140,170,.2)");
+    cool.addColorStop(1, "rgba(35,140,170,0)");
     ctx.fillStyle = cool;
     ctx.fillRect(0, 0, 1024, 512);
-    ctx.globalAlpha = 0.24;
-    for (let i = 0; i < 9; i++) {
-      ctx.fillStyle = i % 2 ? "#d9ffff" : "#ffd9a8";
-      ctx.fillRect(0, 30 + i * 48, 1024, 2);
-    }
+    // softbox strips give the metal long, readable reflections
+    ctx.globalAlpha = 0.16;
+    [96, 248, 730, 860].forEach((x, i) => {
+      const box = ctx.createLinearGradient(x - 18, 0, x + 18, 0);
+      box.addColorStop(0, "rgba(255,255,255,0)");
+      box.addColorStop(0.5, i % 2 ? "rgba(210,255,255,1)" : "rgba(255,220,180,1)");
+      box.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = box;
+      ctx.fillRect(x - 18, 70 + i * 45, 36, 170);
+    });
     ctx.globalAlpha = 1;
     const tex = new T.CanvasTexture(c);
     tex.mapping = T.EquirectangularReflectionMapping;
@@ -130,9 +138,9 @@ import { buildPhoneModel } from "./model.js";
   }
   scene.environment = makeEnvironment();
 
-  const hemi = new T.HemisphereLight(0x64d9e8, 0x02070b, 1.1);
+  const hemi = new T.HemisphereLight(0x3d7f8c, 0x010305, 0.62);
   scene.add(hemi);
-  const key = new T.DirectionalLight(0xffb877, 3.2);
+  const key = new T.DirectionalLight(0xffb06e, 4.4);
   key.position.set(-4.2, 5.6, 4.5);
   key.castShadow = true;
   key.shadow.mapSize.set(1024, 1024);
@@ -144,12 +152,21 @@ import { buildPhoneModel } from "./model.js";
   key.shadow.camera.bottom = -5;
   key.shadow.bias = -0.0005;
   scene.add(key);
-  const rim = new T.DirectionalLight(0x59eaff, 2.1);
+  const rim = new T.DirectionalLight(0x4fdcff, 3.0);
   rim.position.set(4.5, 2.4, -4);
   scene.add(rim);
-  const fill = new T.DirectionalLight(0x3b8ea0, 0.75);
+  const fill = new T.DirectionalLight(0x2f6f7a, 0.42);
   fill.position.set(0, -1, 4);
   scene.add(fill);
+  const warmPoint = new T.PointLight(0xff9b58, 1.6, 9, 2);
+  warmPoint.position.set(-2.4, 1.4, 2.6);
+  scene.add(warmPoint);
+  const coolPoint = new T.PointLight(0x43dfff, 1.2, 9, 2);
+  coolPoint.position.set(2.8, 1.2, -1.8);
+  scene.add(coolPoint);
+  const front = new T.DirectionalLight(0xb9f7ff, 1.25);
+  front.position.set(0.5, 1.4, 5.2);
+  scene.add(front);
 
   const ground = new T.Mesh(new T.PlaneGeometry(24, 24), new T.ShadowMaterial({ color: 0x000000, opacity: 0.34 }));
   ground.rotation.x = -Math.PI / 2;

@@ -267,37 +267,74 @@ const T = THREE;
     });
   }
 
+  function brushedTexture() {
+    const c = document.createElement("canvas");
+    c.width = 512;
+    c.height = 512;
+    const ctx = c.getContext("2d");
+    ctx.fillStyle = "#777777";
+    ctx.fillRect(0, 0, 512, 512);
+    for (let i = 0; i < 1400; i++) {
+      const y = Math.random() * 512;
+      const a = 0.03 + Math.random() * 0.1;
+      ctx.strokeStyle = Math.random() > 0.5 ? `rgba(255,255,255,${a})` : `rgba(0,0,0,${a})`;
+      ctx.lineWidth = Math.random() > 0.82 ? 1.2 : 0.5;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(512, y + (Math.random() - 0.5) * 2);
+      ctx.stroke();
+    }
+    const texture = new T.CanvasTexture(c);
+    texture.wrapS = T.RepeatWrapping;
+    texture.wrapT = T.RepeatWrapping;
+    texture.repeat.set(2, 1);
+    texture.anisotropy = 4;
+    return texture;
+  }
+
   function buildPhone(partsData) {
     const root = new T.Group();
     root.name = "AURORA_P1";
     const partMap = new Map();
     const meshes = [];
 
+    const brushed = brushedTexture();
     const metal = new T.MeshPhysicalMaterial({
-      color: 0x1b303b,
-      metalness: 0.88,
-      roughness: 0.26,
-      clearcoat: 0.45,
-      clearcoatRoughness: 0.28,
+      color: 0x263941,
+      metalness: 0.98,
+      roughness: 0.28,
+      roughnessMap: brushed,
+      clearcoat: 0.46,
+      clearcoatRoughness: 0.18,
+      envMapIntensity: 1.9,
     });
     const darkMetal = new T.MeshPhysicalMaterial({
-      color: 0x0b141b,
-      metalness: 0.7,
-      roughness: 0.35,
+      color: 0x081116,
+      metalness: 0.9,
+      roughness: 0.32,
+      roughnessMap: brushed,
+      envMapIntensity: 1.25,
     });
     const glass = new T.MeshPhysicalMaterial({
-      color: 0x0b2432,
-      metalness: 0.42,
-      roughness: 0.16,
+      color: 0x06131b,
+      metalness: 0.28,
+      roughness: 0.09,
       clearcoat: 1,
-      clearcoatRoughness: 0.1,
+      clearcoatRoughness: 0.06,
       transparent: true,
-      opacity: 0.97,
+      opacity: 0.98,
+      envMapIntensity: 1.55,
     });
     const screenMat = new T.MeshBasicMaterial({ map: screenTexture(), toneMapped: true, color: 0x688791 });
-    const pcb = new T.MeshStandardMaterial({ map: pcbTexture(), metalness: 0.25, roughness: 0.62 });
-    const copper = new T.MeshPhysicalMaterial({ color: 0xb96d35, metalness: 0.9, roughness: 0.25 });
-    const batteryMat = new T.MeshStandardMaterial({ map: batteryTexture(), metalness: 0.28, roughness: 0.55 });
+    const pcb = new T.MeshStandardMaterial({
+      map: pcbTexture(), color: 0x638476, metalness: 0.46, roughness: 0.56,
+    });
+    const copper = new T.MeshPhysicalMaterial({
+      color: 0x8d4a24, metalness: 0.97, roughness: 0.3, envMapIntensity: 1.1,
+    });
+    const batteryMat = new T.MeshStandardMaterial({
+      map: batteryTexture(), color: 0xb9c2c2, metalness: 0.48, roughness: 0.46,
+    });
     const accent = new T.MeshStandardMaterial({
       color: 0x59eaff,
       emissive: 0x1a9bb8,
@@ -360,6 +397,11 @@ const T = THREE;
     frameMesh.castShadow = true;
     frameMesh.receiveShadow = true;
     frame.add(frameMesh);
+    const frameEdges = new T.LineSegments(
+      new T.EdgesGeometry(frameGeo, 24),
+      new T.LineBasicMaterial({ color: 0x8de4ee, transparent: true, opacity: 0.2 })
+    );
+    frame.add(frameEdges);
     const antennaBand = new T.MeshStandardMaterial({ color: 0x223840, metalness: 0.65, roughness: 0.35 });
     [-1.56, 1.56].forEach((y) => {
       const band = new T.Mesh(new T.BoxGeometry(1.22, 0.022, 0.026), antennaBand);
