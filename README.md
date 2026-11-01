@@ -90,6 +90,7 @@ index.html?exploded=1&tour=1
 index.html?exploded=1&parts=1
 index.html?exploded=1&labels=1
 index.html?exploded=1&filter=optics
+index.html?view=back
 ```
 
 `part` 支持全部 24 个 id：`screen`、`frame`、`back`、`board`、`battery`、`camera`、`coil`、`speaker`、`frontCamera`、`earpiece`、`vibration`、`vapor`、`simTray`、`usb`、`buttons`、`antenna`、`micTop`、`micBottom`、`als`、`displayFlex`、`shield`、`nfc`、`graphite`、`bracket`。

@@ -45,8 +45,8 @@ import { buildPhoneModel } from "./model.js";
   else renderer.outputEncoding = T.sRGBEncoding;
 
   const scene = new T.Scene();
-  scene.background = new T.Color(0x030b10);
-  scene.fog = new T.FogExp2(0x030b10, 0.032);
+  scene.background = new T.Color(0x05080b);
+  scene.fog = new T.FogExp2(0x05080b, 0.032);
 
   const camera = new T.PerspectiveCamera(31, stage.clientWidth / stage.clientHeight, 0.1, 100);
   const composer = new EffectComposer(renderer);
@@ -100,24 +100,24 @@ import { buildPhoneModel } from "./model.js";
     c.height = 512;
     const ctx = c.getContext("2d");
     const g = ctx.createLinearGradient(0, 0, 0, 512);
-    g.addColorStop(0, "#010406");
-    g.addColorStop(0.3, "#08171d");
-    g.addColorStop(0.46, "#1d343a");
-    g.addColorStop(0.5, "#8aa3a4");
-    g.addColorStop(0.54, "#101c21");
-    g.addColorStop(1, "#010305");
+    g.addColorStop(0, "#010203");
+    g.addColorStop(0.3, "#111619");
+    g.addColorStop(0.46, "#3c4447");
+    g.addColorStop(0.5, "#aeb6b7");
+    g.addColorStop(0.54, "#1b2022");
+    g.addColorStop(1, "#010203");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 1024, 512);
     const warm = ctx.createRadialGradient(170, 180, 2, 170, 180, 210);
-    warm.addColorStop(0, "rgba(255,172,99,.85)");
-    warm.addColorStop(0.35, "rgba(255,125,60,.22)");
-    warm.addColorStop(1, "rgba(255,125,60,0)");
+    warm.addColorStop(0, "rgba(255,218,185,.7)");
+    warm.addColorStop(0.35, "rgba(255,175,120,.18)");
+    warm.addColorStop(1, "rgba(255,175,120,0)");
     ctx.fillStyle = warm;
     ctx.fillRect(0, 0, 1024, 512);
     const cool = ctx.createRadialGradient(790, 210, 2, 790, 210, 260);
-    cool.addColorStop(0, "rgba(70,225,255,.65)");
-    cool.addColorStop(0.4, "rgba(35,140,170,.2)");
-    cool.addColorStop(1, "rgba(35,140,170,0)");
+    cool.addColorStop(0, "rgba(190,235,255,.5)");
+    cool.addColorStop(0.4, "rgba(100,170,195,.16)");
+    cool.addColorStop(1, "rgba(100,170,195,0)");
     ctx.fillStyle = cool;
     ctx.fillRect(0, 0, 1024, 512);
     // softbox strips give the metal long, readable reflections
@@ -138,7 +138,7 @@ import { buildPhoneModel } from "./model.js";
   }
   scene.environment = makeEnvironment();
 
-  const hemi = new T.HemisphereLight(0x3d7f8c, 0x010305, 0.62);
+  const hemi = new T.HemisphereLight(0x82979d, 0x010203, 0.44);
   scene.add(hemi);
   const key = new T.DirectionalLight(0xffb06e, 4.4);
   key.position.set(-4.2, 5.6, 4.5);
@@ -775,6 +775,11 @@ import { buildPhoneModel } from "./model.js";
     explodeLabel.textContent = "组装复位";
     explodeBtn.classList.add("is-open");
     stage.classList.add("hint-hidden");
+  }
+  if (params.get("view") === "back") {
+    orbit.desiredTheta = 2.36;
+    orbit.desiredPhi = 1.48;
+    explodeTarget = 0;
   }
   if (params.get("tour") === "1") window.setTimeout(startTour, 700);
   const filterParam = params.get("filter");

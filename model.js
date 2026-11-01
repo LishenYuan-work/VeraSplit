@@ -324,14 +324,14 @@ const T = THREE;
       envMapIntensity: 1.85,
     });
     const glass = new T.MeshPhysicalMaterial({
-      color: 0x080a0b,
-      metalness: 0.62,
-      roughness: 0.08,
+      color: 0x050607,
+      metalness: 0.18,
+      roughness: 0.1,
       clearcoat: 1,
       clearcoatRoughness: 0.05,
-      transparent: true,
-      opacity: 0.98,
-      envMapIntensity: 1.7,
+      transparent: false,
+      opacity: 1,
+      envMapIntensity: 0.75,
     });
     const screenMat = new T.MeshBasicMaterial({ map: screenTexture(), toneMapped: true, color: 0x688791 });
     const pcb = new T.MeshStandardMaterial({
@@ -569,15 +569,15 @@ const T = THREE;
     const coil = new T.Group();
     coil.position.copy(basePosition("coil"));
     const coilRing = new T.Mesh(new T.TorusGeometry(0.34, 0.018, 10, 56), copper);
-    coilRing.position.set(0, -0.52, -0.145);
+    coilRing.position.set(0, -0.52, -0.098);
     coil.add(coilRing);
     const coilInner = new T.Mesh(new T.TorusGeometry(0.23, 0.012, 8, 42), copper);
-    coilInner.position.set(0, -0.52, -0.145);
+    coilInner.position.set(0, -0.52, -0.098);
     coil.add(coilInner);
     const magnet = new T.Mesh(new T.TorusGeometry(0.39, 0.012, 8, 64), new T.MeshStandardMaterial({
       color: 0x26323a, metalness: 0.85, roughness: 0.3,
     }));
-    magnet.position.set(0, -0.52, -0.13);
+    magnet.position.set(0, -0.52, -0.09);
     coil.add(magnet);
     register(coil, "coil");
 
@@ -728,11 +728,11 @@ const T = THREE;
     const nfc = new T.Group();
     const nfcMat = new T.MeshStandardMaterial({ color: 0xb8733e, metalness: 0.55, roughness: 0.42, side: T.DoubleSide });
     const nfcPlate = flatRounded(0.92, 0.95, 0.16, nfcMat);
-    nfcPlate.position.set(0, -0.28, -0.112);
+    nfcPlate.position.set(0, -0.28, -0.104);
     nfcPlate.rotation.y = Math.PI;
     nfc.add(nfcPlate);
     const nfcLoop = new T.Mesh(new T.TorusGeometry(0.3, 0.006, 6, 48), new T.MeshBasicMaterial({ color: 0xffc36b }));
-    nfcLoop.position.set(0, -0.28, -0.118);
+    nfcLoop.position.set(0, -0.28, -0.11);
     nfcLoop.rotation.y = Math.PI;
     nfc.add(nfcLoop);
     register(nfc, "nfc");
@@ -742,7 +742,7 @@ const T = THREE;
     const graphitePlate = flatRounded(1.24, 1.48, 0.12, new T.MeshBasicMaterial({
       color: 0x29363d, transparent: true, opacity: 0.58, side: T.DoubleSide,
     }));
-    graphitePlate.position.set(0, -0.08, -0.108);
+    graphitePlate.position.set(0, -0.08, -0.101);
     graphite.add(graphitePlate);
     register(graphite, "graphite");
 
@@ -750,16 +750,16 @@ const T = THREE;
     const bracket = new T.Group();
     const bracketMat = silver;
     const bracketTop = new T.Mesh(new T.BoxGeometry(0.95, 0.045, 0.06), bracketMat);
-    bracketTop.position.set(-0.18, 1.47, -0.17);
+    bracketTop.position.set(-0.18, 1.47, -0.145);
     bracket.add(bracketTop);
     const bracketBottom = new T.Mesh(new T.BoxGeometry(0.95, 0.045, 0.06), bracketMat);
-    bracketBottom.position.set(-0.18, 0.63, -0.17);
+    bracketBottom.position.set(-0.18, 0.63, -0.145);
     bracket.add(bracketBottom);
     const bracketLeft = new T.Mesh(new T.BoxGeometry(0.045, 0.88, 0.06), bracketMat);
-    bracketLeft.position.set(-0.64, 1.05, -0.17);
+    bracketLeft.position.set(-0.64, 1.05, -0.145);
     bracket.add(bracketLeft);
     const bracketRight = new T.Mesh(new T.BoxGeometry(0.045, 0.88, 0.06), bracketMat);
-    bracketRight.position.set(0.28, 1.05, -0.17);
+    bracketRight.position.set(0.28, 1.05, -0.145);
     bracket.add(bracketRight);
     register(bracket, "bracket");
 
